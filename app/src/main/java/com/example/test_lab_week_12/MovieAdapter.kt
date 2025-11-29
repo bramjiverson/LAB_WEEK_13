@@ -1,59 +1,46 @@
 package com.example.test_lab_week_12
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.test_lab_week_12.databinding.ItemMovieBinding
 import com.example.test_lab_week_12.model.Movie
 
-class MovieAdapter(private val clickListener: MovieClickListener) :
-    RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
+// Hapus 'private val' dari konstruktor, kita akan kelola list di dalam class
+class MovieAdapter : RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
 
-    private val movies = mutableListOf<Movie>()
+    // Buat variabel untuk menyimpan daftar film. Awalnya kosong.
+    private var movies: List<Movie> = emptyList()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.view_movie_item, parent, false)
-        return MovieViewHolder(view)
+    // --- INI SOLUSINYA ---
+    // Buat fungsi untuk mengganti daftar film dan memberitahu adapter untuk refresh.
+    // Ini adalah pengganti dari `addMovies` yang Anda coba panggil.
+    fun updateMovies(newMovies: List<Movie>) {
+        this.movies = newMovies
+        notifyDataSetChanged() // Memberitahu RecyclerView bahwa data telah berubah
     }
 
+    inner class MovieViewHolder(val binding: ItemMovieBinding) : RecyclerView.ViewHolder(binding.root)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
+        val binding = ItemMovieBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MovieViewHolder(binding)
+    }
+
+    // getItemCount sekarang menggunakan properti 'movies' dari dalam class
     override fun getItemCount() = movies.size
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
+        // Logika onBindViewHolder tidak perlu diubah
         val movie = movies[position]
-        holder.bind(movie)
-        holder.itemView.setOnClickListener { clickListener.onMovieClick(movie) }
-    }
+        holder.binding.movieTitle.text = movie.title
 
-    fun addMovies(movieList: List<Movie>) {
-        movies.addAll(movieList)
-        notifyItemRangeInserted(0, movieList.size)
-    }
+        val baseImageUrl = "https://image.tmdb.org/t/p/w500"
+        val fullPosterUrl = baseImageUrl + movie.posterPath
 
-    class MovieViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val imageUrl = "https://image.tmdb.org/t/p/w185/"
-        private val titleText: TextView by lazy {
-            itemView.findViewById(R.id.movie_title)
-        }
-        private val poster: ImageView by lazy {
-            itemView.findViewById(R.id.movie_poster)
-        }
-
-        fun bind(movie: Movie) {
-            titleText.text = movie.title
-
-            Glide.with(itemView.context)
-                .load("$imageUrl${movie.posterPath}")
-                .placeholder(R.mipmap.ic_launcher)
-                .fitCenter()
-                .into(poster)
-        }
-    }
-
-    interface MovieClickListener {
-        fun onMovieClick(movie: Movie)
+        Glide.with(holder.itemView.context)
+            .load(fullPosterUrl)
+            .into(holder.binding.moviePoster)
     }
 }

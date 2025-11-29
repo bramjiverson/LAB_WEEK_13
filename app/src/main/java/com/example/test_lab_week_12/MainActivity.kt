@@ -1,35 +1,40 @@
 package com.example.test_lab_week_12
 
-import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
-import com.example.test_lab_week_12.model.Movie
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
+import com.example.test_lab_week_12.databinding.ActivityMainBinding
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    private val movieAdapter by lazy {
-        MovieAdapter(object : MovieAdapter.MovieClickListener {
-            override fun onMovieClick(movie: Movie) {
-                openMovieDetails(movie)
-            }
-        })
+
+    private lateinit var binding: ActivityMainBinding
+    private val movieAdapter = MovieAdapter()
+
+    private val movieViewModel: MovieViewModel by viewModels {
+        MovieViewModelFactory(MovieApplication.movieService)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val recyclerView: RecyclerView = findViewById(R.id.movie_list)
-        recyclerView.adapter = movieAdapter
-    }
+        binding.recyclerView.layoutManager = GridLayoutManager(this, 2)
+        binding.recyclerView.adapter = movieAdapter
 
-    private fun openMovieDetails(movie: Movie) {
-        val intent = Intent(this, DetailsActivity::class.java).apply {
-            putExtra(DetailsActivity.EXTRA_TITLE, movie.title)
-            putExtra(DetailsActivity.EXTRA_RELEASE, movie.releaseDate)
-            putExtra(DetailsActivity.EXTRA_OVERVIEW, movie.overview)
-            putExtra(DetailsActivity.EXTRA_POSTER, movie.posterPath)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                movieViewModel.movies.collect { movieList ->
+                    if (movieList != null) {
+                        movieAdapter.updateMovies(movieList)
+                    }
+                }
+            }
         }
-        startActivity(intent)
     }
 }
