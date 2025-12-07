@@ -1,32 +1,26 @@
 package com.example.test_lab_week_13
 
 import android.app.Application
-import com.example.test_lab_week_13.api.AuthInterceptor
 import com.example.test_lab_week_13.api.MovieService
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import com.example.test_lab_week_13.database.MovieDatabase
 
 class MovieApplication : Application() {
 
     companion object {
         lateinit var movieService: MovieService
-            private set
+        lateinit var movieRepository: MovieRepository
     }
 
     override fun onCreate() {
         super.onCreate()
 
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(AuthInterceptor())
-            .build()
+        movieService = MovieService.create()
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.themoviedb.org/3/")
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
+        val movieDatabase = MovieDatabase.getInstance(applicationContext)
 
-        movieService = retrofit.create(MovieService::class.java)
+        movieRepository = MovieRepository(
+            movieService,
+            movieDatabase
+        )
     }
 }

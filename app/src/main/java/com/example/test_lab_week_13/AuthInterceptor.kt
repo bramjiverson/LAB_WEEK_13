@@ -11,7 +11,7 @@ class AuthInterceptor : Interceptor {
         // --- INI SOLUSINYA: Ganti .url menjadi .url() ---
         val url = request.url() // Panggil metode url()
             .newBuilder()
-            .addQueryParameter("def1e691d83bdeb5e7a808758e56275c", BuildConfig.TMDB_API_KEY)
+            .addQueryParameter("", BuildConfig.TMDB_API_KEY)
             .build()
 
         request = request.newBuilder().url(url).build()
