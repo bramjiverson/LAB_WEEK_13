@@ -1,11 +1,11 @@
-package com.example.test_lab_week_12
+package com.example.test_lab_week_13
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.test_lab_week_12.databinding.ItemMovieBinding
-import com.example.test_lab_week_12.model.Movie
+import com.example.test_lab_week_13.databinding.ItemMovieBinding
+import com.example.test_lab_week_13.model.Movie
 
 // Hapus 'private val' dari konstruktor, kita akan kelola list di dalam class
 class MovieAdapter : RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
