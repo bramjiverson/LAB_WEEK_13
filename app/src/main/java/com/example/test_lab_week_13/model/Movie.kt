@@ -17,12 +17,3 @@ data class Movie(
 
     val popularity: Double?
 )
-
-@Entity(tableName = "movies")
-data class Movie(
-    @PrimaryKey val id: Int,
-    val title: String? = "",
-    val overview: String? = "",
-    val poster_path: String? = "",
-    val backdrop_path: String? = ""   // ⬅ WAJIB default biar tidak NOT NULL error
-)
