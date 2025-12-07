@@ -1,4 +1,4 @@
-package com.example.test_lab_week_13.api
+package com.example.test_lab_week_13
 
 import com.example.test_lab_week_13.BuildConfig
 import okhttp3.Interceptor
@@ -8,10 +8,10 @@ class AuthInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
 
-        // --- INI SOLUSINYA: Ganti .url menjadi .url() ---
-        val url = request.url() // Panggil metode url()
+        // Wajib pakai .url()
+        val url = request.url()
             .newBuilder()
-            .addQueryParameter("", BuildConfig.TMDB_API_KEY)
+            .addQueryParameter("api_key", BuildConfig.TMDB_API_KEY)
             .build()
 
         request = request.newBuilder().url(url).build()
