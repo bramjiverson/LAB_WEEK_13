@@ -1,6 +1,6 @@
-package com.example.test_lab_week_12.api
+package com.example.test_lab_week_13.api
 
-import com.example.test_lab_week_12.BuildConfig
+import com.example.test_lab_week_13.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.Response
 

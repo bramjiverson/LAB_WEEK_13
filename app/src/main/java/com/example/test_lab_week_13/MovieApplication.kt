@@ -1,8 +1,8 @@
-package com.example.test_lab_week_12
+package com.example.test_lab_week_13
 
 import android.app.Application
-import com.example.test_lab_week_12.api.AuthInterceptor
-import com.example.test_lab_week_12.api.MovieService
+import com.example.test_lab_week_13.api.AuthInterceptor
+import com.example.test_lab_week_13.api.MovieService
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory

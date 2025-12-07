@@ -1,8 +1,8 @@
-package com.example.test_lab_week_12
+package com.example.test_lab_week_13
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.test_lab_week_12.api.MovieService
+import com.example.test_lab_week_13.api.MovieService
 
 class MovieViewModelFactory(private val movieService: MovieService) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

@@ -1,4 +1,4 @@
-import java.util.Properties // <-- tambahkan ini
+import java.util.Properties // <-- jangan lupa ini
 
 plugins {
     id("com.android.application")
@@ -6,18 +6,18 @@ plugins {
     id("kotlin-kapt")
 }
 
-// BARIS INI HARUS PERSIS SEPERTI INI, TANPA SALAH KETIK
+// Load TMDB_API_KEY dari local.properties
 val properties = Properties()
 if (rootProject.file("local.properties").exists()) {
     properties.load(rootProject.file("local.properties").inputStream())
 }
 
 android {
-    namespace = "com.example.test_lab_week_12"
+    namespace = "com.example.test_lab_week_13"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.test_lab_week_12"
+        applicationId = "com.example.test_lab_week_13" // disamakan dengan namespace
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -25,7 +25,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "TMDB_API_KEY", properties.getProperty("TMDB_API_KEY", "\"\""))
+        buildConfigField(
+            "String",
+            "TMDB_API_KEY",
+            properties.getProperty("TMDB_API_KEY", "\"\"")
+        )
     }
 
     buildTypes {
@@ -47,9 +51,10 @@ android {
         jvmTarget = "1.8"
     }
 
+    // Gabungkan buildFeatures
     buildFeatures {
+        dataBinding = true
         viewBinding = true
-        buildConfig = true // <--- wajib untuk custom BuildConfig fields
     }
 }
 
