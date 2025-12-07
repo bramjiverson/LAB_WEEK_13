@@ -1,36 +1,50 @@
-package com.example.test_lab_week_13
+package com.example.lab_week_13
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.test_lab_week_13.api.MovieService
-import com.example.test_lab_week_13.model.Movie
+import com.example.lab_week_13.model.Movie
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
-// --- PERBAIKAN: Hapus nilai default dari konstruktor ---
-// Sekarang, kelas ini tidak lagi bergantung pada MovieApplication secara langsung.
-class MovieViewModel(private val movieService: MovieService) : ViewModel() {
-
-    // Bagian ini sudah benar dan tidak perlu diubah.
-    private val _movies = MutableStateFlow<List<Movie>?>(null)
-    val movies: StateFlow<List<Movie>?> = _movies
+class MovieViewModel(private val movieRepository: MovieRepository) : ViewModel() {
+    // define the StateFlow in replace of the LiveData
+    // a StateFlow is an observable Flow that emits state updates to the collectors
+    // MutableStateFlow is a StateFlow that you can change the value
+    private val _popularMovies = MutableStateFlow(
+        emptyList<Movie>()
+    )
+    val popularMovies: StateFlow<List<Movie>> = _popularMovies
+    private val _error = MutableStateFlow("")
+    val error: StateFlow<String> = _error
 
     init {
         fetchPopularMovies()
     }
 
+    // fetch movies from the API
     private fun fetchPopularMovies() {
-        viewModelScope.launch {
-            try {
-                val response = movieService.getPopularMovies()
-                if (response.isSuccessful) {
-                    _movies.value = response.body()?.results
-                } else {
-                    // Handle error
-                }
-            } catch (e: Exception) {
-                // Handle exception
+        // launch a coroutine in viewModelScope
+        // Dispatchers.IO means that this coroutine will run on a shared pool of threads
+        viewModelScope.launch(Dispatchers.IO) {
+            movieRepository.fetchMovies().catch { exception ->
+                // catch is a terminal operator that catches exceptions from the Flow
+                _error.value = "An exception occurred: ${exception.message}"
+            }.collect { movies ->
+                val currentYear = Calendar.getInstance().get(Calendar.YEAR).toString()
+                // collect is a terminal operator that collects the values from the Flow
+                // the results are emitted to the StateFlow
+                _popularMovies.value =
+                    movies
+                        .filter { movie ->
+                            movie.releaseDate?.startsWith(currentYear) == true
+                        }
+                        .sortedByDescending { movie ->
+                            movie.popularity
+                        }
             }
         }
     }

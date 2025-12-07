@@ -1,37 +1,55 @@
-package com.example.test_lab_week_13
+package com.example.lab_week_13
 
+import android.content.Intent
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.databinding.DataBindingUtil
-import com.example.test_lab_week_13.databinding.ActivityMainBinding
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
+import com.example.lab_week_13.model.Movie
+import com.google.android.material.snackbar.Snackbar
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.example.lab_week_13.databinding.ActivityMainBinding
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+    private val movieAdapter by lazy {
+        MovieAdapter(object : MovieAdapter.MovieClickListener {
+            override fun onMovieClick(movie: Movie) {
+                openMovieDetails(movie)
+            }
+        })
+    }
 
-    private lateinit var binding: ActivityMainBinding
-    private val movieAdapter = MovieAdapter()
-
-    // Inisialisasi ViewModel menggunakan by viewModels dan factory
-    private val movieViewModel: MovieViewModel by viewModels {
-        MovieViewModelFactory(MovieApplication.movieService)
+    private val movieViewModel: MovieViewModel by lazy {
+        val movieRepository = (application as MovieApplication).movieRepository
+        val factory = MovieViewModelFactory(movieRepository)
+        ViewModelProvider(this, factory)[MovieViewModel::class.java]
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Buat Binding Object dari layout
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-
-        // Bind ViewModel ke layout
+        val binding: ActivityMainBinding = DataBindingUtil
+            .setContentView(this, R.layout.activity_main)
+        val recyclerView: RecyclerView = findViewById(R.id.movie_list)
+        recyclerView.adapter = movieAdapter
         binding.viewModel = movieViewModel
         binding.lifecycleOwner = this
 
-        // Set RecyclerView layout manager dan adapter
-        binding.recyclerView.layoutManager = GridLayoutManager(this, 2)
-        binding.recyclerView.adapter = movieAdapter
+        // fetch movies from the API
+        // lifecycleScope is a lifecycle-aware coroutine scope
+    }
 
-        // Tidak perlu lagi lifecycleScope.launch
-        // RecyclerView akan otomatis update melalui Data Binding dan BindingAdapter
+    private fun openMovieDetails(movie: Movie) {
+        val intent = Intent(this, DetailsActivity::class.java).apply {
+            putExtra(DetailsActivity.EXTRA_TITLE, movie.title)
+            putExtra(DetailsActivity.EXTRA_RELEASE, movie.releaseDate)
+            putExtra(DetailsActivity.EXTRA_OVERVIEW, movie.overview)
+            putExtra(DetailsActivity.EXTRA_POSTER, movie.posterPath)
+        }
+        startActivity(intent)
     }
 }
